@@ -1,5 +1,6 @@
 import streamlit as st
 import datetime
+import os
 
 st.set_page_config(
     page_title="Sistem Formulir Pendaftaran Nikah Desa",
@@ -10,16 +11,21 @@ st.set_page_config(
 st.title("💍 Aplikasi Pendaftaran Nikah (Formulir Isian Data Desa)")
 st.markdown("Isilah data calon pasangan pengantin dengan **cermat & teliti**.")
 
+# ----------------------------------------------------
 # TAB NAVIGATION
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+# ----------------------------------------------------
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📋 1. Pengaturan Surat & Lokasi",
     "👨 2. Catin Laki-Laki & Ortu",
     "👩 3. Catin Perempuan & Ortu",
     "🕌 4. Data Wali Nikah",
-    "📄 5. Ringkasan & Cetak Data (RDS)"
+    "📄 5. Ringkasan (RDS)",
+    "📥 6. Unduh File Excel Asli"
 ])
 
+# ----------------------------------------------------
 # TAB 1: PENGATURAN SURAT & LOKASI
+# ----------------------------------------------------
 with tab1:
     st.subheader("Informasi Desa & Registrasi Surat")
     col1, col2 = st.columns(2)
@@ -51,7 +57,9 @@ with tab1:
         else:
             tempat_akad = st.text_area("Tempat Akad Nikah (Luar Kantor)", value="Dsn Simadu RT 003 RW 008 Desa Badak Kecamatan Belik Kabupaten Pemalang")
 
+# ----------------------------------------------------
 # TAB 2: CATIN LAKI-LAKI & ORTU
+# ----------------------------------------------------
 with tab2:
     st.subheader("Data Calon Pengantin Laki-Laki")
     col_p1, col_p2 = st.columns(2)
@@ -98,7 +106,9 @@ with tab2:
         p_ibu_pekerjaan = st.text_input("Pekerjaan Ibu", value="MENGURUS RUMAH TANGGA")
         p_ibu_alamat = st.text_input("Alamat Ibu", value="DK. Tambi RT 002 RW 001 Tambi Kec. Watukumpul Kab. Pemalang")
 
+# ----------------------------------------------------
 # TAB 3: CATIN PEREMPUAN & ORTU
+# ----------------------------------------------------
 with tab3:
     st.subheader("Data Calon Pengantin Perempuan")
     col_w1, col_w2 = st.columns(2)
@@ -145,7 +155,9 @@ with tab3:
         w_ibu_pekerjaan = st.text_input("Pekerjaan Ibu (Perempuan)", value="MENGURUS RUMAH TANGGA")
         w_ibu_alamat = st.text_input("Alamat Ibu (Perempuan)", value="Dsn Simadu RT 003 RW 008 Desa Badak Kecamatan Belik Kabupaten Pemalang")
 
+# ----------------------------------------------------
 # TAB 4: DATA WALI NIKAH
+# ----------------------------------------------------
 with tab4:
     st.subheader("Informasi & Identitas Wali Nikah")
     status_perwalian = st.radio("Status Perwalian", ["WALI NASAB", "WALI HAKIM"])
@@ -184,11 +196,11 @@ with tab4:
         wali_pekerjaan = "-"
         wali_alamat = "-"
 
+# ----------------------------------------------------
 # TAB 5: RINGKASAN & CETAK DATA (RDS)
+# ----------------------------------------------------
 with tab5:
     st.subheader("📄 Rekam Data Sementara (RDS)")
-    st.markdown("Format ringkasan data siap disalin untuk operator KUA atau catatan berkas:")
-    
     rds_text = f"""==========================================
 REKAM DATA SEMENTARA (RDS) PENDAFTARAN NIKAH
 DESA {nama_desa} / REGISTER: {no_register}
@@ -225,6 +237,26 @@ D. WALI NIKAH
 • NIK Wali      : {wali_nik}
 ==========================================
 """
-    
     st.code(rds_text, language="text")
     st.download_button("📥 Unduh Teks Ringkasan Data (RDS)", data=rds_text, file_name=f"RDS_{catin_p_nama}.txt")
+
+# ----------------------------------------------------
+# TAB 6: UNDUH FILE EXCEL ASLI
+# ----------------------------------------------------
+with tab6:
+    st.subheader("📥 Unduh Berkas Excel Asli (.xlsx)")
+    st.markdown("Klik tombol di bawah ini untuk mengunduh file Excel lengkap dengan seluruh sheet, rumus, dan format asli bawaan Anda.")
+    
+    excel_filename = "N_AOFA ARDIAN AZIZ RT 02_01.xlsx"
+    
+    if os.path.exists(excel_filename):
+        with open(excel_filename, "rb") as f:
+            excel_bytes = f.read()
+        st.download_button(
+            label="📊 Download File Excel Asli",
+            data=excel_bytes,
+            file_name=excel_filename,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    else:
+        st.error(f"⚠️ File Excel asli `{excel_filename}` belum diunggah ke repositori GitHub. Pastikan file Excel tersebut sudah ikut di-upload ke dalam folder utama GitHub Anda agar bisa diunduh melalui tombol ini.")
