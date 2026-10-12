@@ -265,7 +265,6 @@ with tab6:
     excel_filename = "N_AOFA ARDIAN AZIZ RT 02_01.xlsx"
     
     if os.path.exists(excel_filename):
-        # Function to generate updated excel file on-the-fly
         def generate_filled_excel():
             wb = openpyxl.load_workbook(excel_filename, data_only=False)
             ws = wb["ISIAN DATA"]
@@ -281,4 +280,106 @@ with tab6:
             ws["C10"] = waktu_akad
             ws["D10"] = alasan_waktu
             ws["E11"] = lokasi_pilihan
-            if lokasi_pilihan == "LUAR K
+            if lokasi_pilihan == "LUAR KANTOR":
+                ws["C11"] = tempat_akad
+                
+            # Catin Laki-Laki
+            ws["C14"] = catin_p_nama
+            ws["C15"] = catin_p_nik
+            ws["D15"] = catin_p_pendidikan
+            ws["C16"] = catin_p_tmpt_lahir
+            ws["D16"] = datetime.datetime.combine(catin_p_tgl_lahir, datetime.time.min)
+            ws["C17"] = catin_p_pekerjaan_val
+            ws["C18"] = catin_p_warganegara
+            ws["C19"] = catin_p_status
+            ws["C20"] = catin_p_alamat1
+            ws["C21"] = catin_p_alamat2
+            
+            # Ayah Laki-Laki
+            ws["E23"] = p_ayah_status
+            ws["C23"] = p_ayah_nama
+            ws["D23"] = p_ayah_bin
+            ws["C24"] = p_ayah_nik
+            ws["C25"] = p_ayah_tmpt_lahir
+            ws["D25"] = datetime.datetime.combine(p_ayah_tgl_lahir, datetime.time.min)
+            ws["C28"] = p_ayah_pekerjaan
+            ws["C29"] = p_ayah_alamat1
+            ws["C30"] = p_ayah_alamat2
+            
+            # Ibu Laki-Laki
+            ws["E32"] = p_ibu_status
+            ws["C32"] = p_ibu_nama
+            ws["D32"] = p_ibu_binti
+            ws["C33"] = p_ibu_nik
+            ws["C34"] = p_ibu_tmpt_lahir
+            ws["D34"] = datetime.datetime.combine(p_ibu_tgl_lahir, datetime.time.min)
+            ws["C37"] = p_ibu_pekerjaan
+            ws["C38"] = p_ibu_alamat1
+            ws["C39"] = p_ibu_alamat2
+            
+            # Catin Perempuan
+            ws["C42"] = catin_w_nama
+            ws["C43"] = catin_w_nik
+            ws["D43"] = catin_w_pendidikan
+            ws["C44"] = catin_w_tmpt_lahir
+            ws["D44"] = datetime.datetime.combine(catin_w_tgl_lahir, datetime.time.min)
+            ws["C45"] = catin_w_pekerjaan_val
+            ws["C46"] = catin_w_warganegara
+            ws["C47"] = catin_w_status
+            ws["C48"] = catin_w_alamat1
+            ws["C49"] = catin_w_alamat2
+            
+            # Ayah Perempuan
+            ws["E51"] = w_ayah_status
+            ws["C51"] = w_ayah_nama
+            ws["D51"] = w_ayah_bin
+            ws["C52"] = w_ayah_nik
+            ws["C53"] = w_ayah_tmpt_lahir
+            ws["D53"] = datetime.datetime.combine(w_ayah_tgl_lahir, datetime.time.min)
+            ws["C56"] = w_ayah_pekerjaan
+            ws["C57"] = w_ayah_alamat1
+            ws["C58"] = w_ayah_alamat2
+            
+            # Ibu Perempuan
+            ws["E60"] = w_ibu_status
+            ws["C60"] = w_ibu_nama
+            ws["D60"] = w_ibu_binti
+            ws["C61"] = w_ibu_nik
+            ws["C62"] = w_ibu_tmpt_lahir
+            ws["D62"] = datetime.datetime.combine(w_ibu_tgl_lahir, datetime.time.min)
+            ws["C65"] = w_ibu_pekerjaan
+            ws["C66"] = w_ibu_alamat1
+            ws["C67"] = w_ibu_alamat2
+            
+            # Wali Nikah
+            ws["C70"] = status_perwalian
+            if status_perwalian == "WALI NASAB":
+                ws["H73"] = hubungan_wali
+                ws["C75"] = wali_nama
+                ws["C76"] = wali_bin
+                ws["C77"] = wali_nik
+                ws["C78"] = wali_tmpt_lahir
+                ws["D78"] = datetime.datetime.combine(wali_tgl_lahir, datetime.time.min)
+                ws["C81"] = wali_pekerjaan
+                ws["C82"] = wali_alamat1
+                ws["C83"] = wali_alamat2
+            else:
+                ws["H73"] = sebab_wali_hakim
+
+            # Save to buffer
+            output = io.BytesIO()
+            wb.save(output)
+            output.seek(0)
+            return output.getvalue()
+
+        file_bytes = generate_filled_excel()
+        download_filename = f"NIKAH_{catin_p_nama.replace(' ', '_')}_{catin_w_nama.replace(' ', '_')}.xlsx"
+        
+        st.download_button(
+            label="📊 Download File Excel Terisi Data Baru",
+            data=file_bytes,
+            file_name=download_filename,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    else:
+        st.error(f"⚠️ File Excel template `{excel_filename}` tidak ditemukan. Pastikan file `{excel_filename}` sudah di-upload ke GitHub pada folder utama.")
