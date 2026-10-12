@@ -14,6 +14,27 @@ st.title("💍 Aplikasi Pendaftaran Nikah (Formulir Isian Data Desa)")
 st.markdown("Isilah data calon pasangan pengantin dengan **cermat & teliti**.")
 
 # ----------------------------------------------------
+# FUNGSI MEMBACA NOMOR REGISTER TERAKHIR DARI EXCEL
+# ----------------------------------------------------
+excel_filename = "N_AOFA ARDIAN AZIZ RT 02_01.xlsx"
+
+def get_default_register():
+    if os.path.exists(excel_filename):
+        try:
+            wb = openpyxl.load_workbook(excel_filename, data_only=True)
+            ws = wb["ISIAN DATA"]
+            val = ws["C7"].value
+            if isinstance(val, int):
+                return val
+        except:
+            pass
+    return 19
+
+# Inisialisasi Session State untuk Nomor Register agar bisa otomatis bertambah
+if 'no_register_val' not in st.session_state:
+    st.session_state.no_register_val = get_default_register()
+
+# ----------------------------------------------------
 # TAB NAVIGATION
 # ----------------------------------------------------
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
@@ -37,7 +58,16 @@ with tab1:
         status_kades = st.selectbox("Status Jabatan Kades", ["Definitif", "Pj", "Plt"])
         nama_kades = st.text_input("Nama Kepala Desa", value="J U R I")
         petugas_pengantar = st.text_input("Petugas Pengantar", value="Chalim Muchtarom, S.Pd.I")
-        no_register = st.number_input("NO. Register Surat", min_value=1, value=19, step=1)
+        
+        # Tombol pengatur nomor register otomatis
+        reg_col1, reg_col2 = st.columns([3, 1])
+        with reg_col1:
+            no_register = st.number_input("NO. Register Surat", min_value=1, value=st.session_state.no_register_val, step=1)
+        with reg_col2:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("➕ Increment (+1)"):
+                st.session_state.no_register_val += 1
+                st.rerun()
         
     with col2:
         tgl_surat = st.date_input("Tanggal Surat", value=datetime.date(2026, 10, 8))
@@ -261,8 +291,6 @@ D. WALI NIKAH
 with tab6:
     st.subheader("📥 Unduh File Excel Berisi Data Hasil Isian")
     st.markdown("Klik tombol di bawah ini untuk mengunduh berkas Excel yang **sudah otomatis terisi** sesuai dengan data yang Anda masukkan pada formulir di atas. Seluruh rumus dan format asli di sheet lainnya tetap terjaga 100%.")
-    
-    excel_filename = "N_AOFA ARDIAN AZIZ RT 02_01.xlsx"
     
     if os.path.exists(excel_filename):
         def generate_filled_excel():
