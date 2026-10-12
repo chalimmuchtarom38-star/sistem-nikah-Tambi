@@ -1,6 +1,8 @@
 import streamlit as st
 import datetime
 import os
+import io
+import openpyxl
 
 st.set_page_config(
     page_title="Sistem Formulir Pendaftaran Nikah Desa",
@@ -20,7 +22,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "👩 3. Catin Perempuan & Ortu",
     "🕌 4. Data Wali Nikah",
     "📄 5. Ringkasan (RDS)",
-    "📥 6. Unduh File Excel Asli"
+    "📥 6. Unduh File Excel Hasil Isian"
 ])
 
 # ----------------------------------------------------
@@ -74,37 +76,42 @@ with tab2:
     with col_p2:
         catin_p_pekerjaan = st.selectbox("4. Pekerjaan (Laki-Laki)", ["WIRASWASTA", "PETANI", "PNS", "KARYAWAN SWASTA", "BURUH", "Lainnya"])
         if catin_p_pekerjaan == "Lainnya":
-            catin_p_pekerjaan = st.text_input("Pekerjaan Lainnya (Laki-Laki)", value="")
+            catin_p_pekerjaan_val = st.text_input("Pekerjaan Lainnya (Laki-Laki)", value="")
+        else:
+            catin_p_pekerjaan_val = catin_p_pekerjaan
             
         catin_p_warganegara = st.text_input("5. Kewarganegaraan (Laki-Laki)", value="INDONESIA")
-        catin_p_status = st.selectbox("6. Status Pernikahan", ["JEJAKA (BELUM KAWIN)", "DUDA MATI", "DUDA CERAI"])
+        catin_p_status = st.selectbox("6. Status Pernikahan (Laki-Laki)", ["JEJAKA (BELUM KAWIN)", "DUDA MATI", "DUDA CERAI"])
         catin_p_alamat1 = st.text_input("7. Alamat Baris 1 (Laki-Laki)", value="DK. Tambi RT 002 RW 001 Tambi")
         catin_p_alamat2 = st.text_input("Alamat Baris 2 (Laki-Laki)", value="Kec. Watukumpul Kab. Pemalang")
 
     st.markdown("---")
     st.subheader("Data Orang Tua Catin Laki-Laki")
-    status_ortu_p = st.radio("Status Orang Tua Catin Laki-Laki", ["BERSAMA (Hidup)", "Ayah Meninggal", "Ibu Meninggal", "Kedua Orang Tua Meninggal"], key="status_ortu_p")
     
     col_pa1, col_pa2 = st.columns(2)
     with col_pa1:
         st.markdown("**-- Data Ayah Kandung --**")
+        p_ayah_status = st.selectbox("Status Ayah (Laki-Laki)", ["Hidup", "Meninggal", "Miruda", "Sepi Ayah"], index=0, key="pa_status")
         p_ayah_nama = st.text_input("Nama Ayah (Laki-Laki)", value="TOHIRIN")
         p_ayah_bin = st.text_input("Bin (Ayah Laki-Laki)", value="MUHAYAT")
         p_ayah_nik = st.text_input("NIK Ayah (Laki-Laki)", value="3327040107730222")
-        p_ayah_tmpt_lahir = st.text_input("Tempat Lahir Ayah", value="PEMALANG")
-        p_ayah_tgl_lahir = st.date_input("Tgl Lahir Ayah", value=datetime.date(1973, 7, 1))
-        p_ayah_pekerjaan = st.text_input("Pekerjaan Ayah", value="WIRASWASTA")
-        p_ayah_alamat = st.text_input("Alamat Ayah", value="DK. Tambi RT 002 RW 001 Tambi Kec. Watukumpul Kab. Pemalang")
+        p_ayah_tmpt_lahir = st.text_input("Tempat Lahir Ayah (Laki-Laki)", value="PEMALANG")
+        p_ayah_tgl_lahir = st.date_input("Tgl Lahir Ayah (Laki-Laki)", value=datetime.date(1973, 7, 1))
+        p_ayah_pekerjaan = st.text_input("Pekerjaan Ayah (Laki-Laki)", value="WIRASWASTA")
+        p_ayah_alamat1 = st.text_input("Alamat Ayah Baris 1 (Laki-Laki)", value="DK. Tambi RT 002 RW 001 Tambi")
+        p_ayah_alamat2 = st.text_input("Alamat Ayah Baris 2 (Laki-Laki)", value="Kec. Watukumpul Kab. Pemalang")
 
     with col_pa2:
         st.markdown("**-- Data Ibu Kandung --**")
+        p_ibu_status = st.selectbox("Status Ibu (Laki-Laki)", ["Hidup", "Meninggal"], index=0, key="pi_status")
         p_ibu_nama = st.text_input("Nama Ibu (Laki-Laki)", value="KARIPAH")
         p_ibu_binti = st.text_input("Binti (Ibu Laki-Laki)", value="SUMARTO")
         p_ibu_nik = st.text_input("NIK Ibu (Laki-Laki)", value="3327044107740064")
-        p_ibu_tmpt_lahir = st.text_input("Tempat Lahir Ibu", value="PEMALANG")
-        p_ibu_tgl_lahir = st.date_input("Tgl Lahir Ibu", value=datetime.date(1974, 7, 1))
-        p_ibu_pekerjaan = st.text_input("Pekerjaan Ibu", value="MENGURUS RUMAH TANGGA")
-        p_ibu_alamat = st.text_input("Alamat Ibu", value="DK. Tambi RT 002 RW 001 Tambi Kec. Watukumpul Kab. Pemalang")
+        p_ibu_tmpt_lahir = st.text_input("Tempat Lahir Ibu (Laki-Laki)", value="PEMALANG")
+        p_ibu_tgl_lahir = st.date_input("Tgl Lahir Ibu (Laki-Laki)", value=datetime.date(1974, 7, 1))
+        p_ibu_pekerjaan = st.text_input("Pekerjaan Ibu (Laki-Laki)", value="MENGURUS RUMAH TANGGA")
+        p_ibu_alamat1 = st.text_input("Alamat Ibu Baris 1 (Laki-Laki)", value="DK. Tambi RT 002 RW 001 Tambi")
+        p_ibu_alamat2 = st.text_input("Alamat Ibu Baris 2 (Laki-Laki)", value="Kec. Watukumpul Kab. Pemalang")
 
 # ----------------------------------------------------
 # TAB 3: CATIN PEREMPUAN & ORTU
@@ -123,7 +130,9 @@ with tab3:
     with col_w2:
         catin_w_pekerjaan = st.selectbox("4. Pekerjaan (Perempuan)", ["Pelajar/Mahasiswa", "MENGURUS RUMAH TANGGA", "WIRASWASTA", "KARYAWAN SWASTA", "Lainnya"])
         if catin_w_pekerjaan == "Lainnya":
-            catin_w_pekerjaan = st.text_input("Pekerjaan Lainnya (Perempuan)", value="")
+            catin_w_pekerjaan_val = st.text_input("Pekerjaan Lainnya (Perempuan)", value="")
+        else:
+            catin_w_pekerjaan_val = catin_w_pekerjaan
             
         catin_w_warganegara = st.text_input("5. Kewarganegaraan (Perempuan)", value="INDONESIA")
         catin_w_status = st.selectbox("6. Status Pernikahan (Perempuan)", ["PERAWAN (BELUM KAWIN)", "JANDA MATI", "JANDA CERAI"])
@@ -132,28 +141,31 @@ with tab3:
 
     st.markdown("---")
     st.subheader("Data Orang Tua Catin Perempuan")
-    status_ortu_w = st.radio("Status Orang Tua Catin Perempuan", ["BERSAMA (Hidup)", "Ayah Meninggal", "Ibu Meninggal", "Kedua Orang Tua Meninggal"], key="status_ortu_w")
     
     col_wa1, col_wa2 = st.columns(2)
     with col_wa1:
         st.markdown("**-- Data Ayah Kandung --**")
+        w_ayah_status = st.selectbox("Status Ayah (Perempuan)", ["Hidup", "Meninggal", "Miruda", "Sepi Ayah"], index=0, key="wa_status")
         w_ayah_nama = st.text_input("Nama Ayah (Perempuan)", value="SAMIUN")
         w_ayah_bin = st.text_input("Bin (Ayah Perempuan)", value="WASNURI")
         w_ayah_nik = st.text_input("NIK Ayah (Perempuan)", value="3327031103810011")
         w_ayah_tmpt_lahir = st.text_input("Tempat Lahir Ayah (Perempuan)", value="PEMALANG")
         w_ayah_tgl_lahir = st.date_input("Tgl Lahir Ayah (Perempuan)", value=datetime.date(1981, 3, 11))
         w_ayah_pekerjaan = st.text_input("Pekerjaan Ayah (Perempuan)", value="PETANI")
-        w_ayah_alamat = st.text_input("Alamat Ayah (Perempuan)", value="Dsn Simadu RT 003 RW 008 Desa Badak Kecamatan Belik Kabupaten Pemalang")
+        w_ayah_alamat1 = st.text_input("Alamat Ayah Baris 1 (Perempuan)", value="Dsn Simadu RT 003 RW 008 Desa Badak")
+        w_ayah_alamat2 = st.text_input("Alamat Ayah Baris 2 (Perempuan)", value="Kecamatan Belik Kabupaten Pemalang")
 
     with col_wa2:
         st.markdown("**-- Data Ibu Kandung --**")
+        w_ibu_status = st.selectbox("Status Ibu (Perempuan)", ["Hidup", "Meninggal"], index=0, key="wi_status")
         w_ibu_nama = st.text_input("Nama Ibu (Perempuan)", value="SRINANI")
         w_ibu_binti = st.text_input("Binti (Ibu Perempuan)", value="SAHRON")
         w_ibu_nik = st.text_input("NIK Ibu (Perempuan)", value="3327034101870012")
         w_ibu_tmpt_lahir = st.text_input("Tempat Lahir Ibu (Perempuan)", value="PEMALANG")
         w_ibu_tgl_lahir = st.date_input("Tgl Lahir Ibu (Perempuan)", value=datetime.date(1987, 1, 1))
         w_ibu_pekerjaan = st.text_input("Pekerjaan Ibu (Perempuan)", value="MENGURUS RUMAH TANGGA")
-        w_ibu_alamat = st.text_input("Alamat Ibu (Perempuan)", value="Dsn Simadu RT 003 RW 008 Desa Badak Kecamatan Belik Kabupaten Pemalang")
+        w_ibu_alamat1 = st.text_input("Alamat Ibu Baris 1 (Perempuan)", value="Dsn Simadu RT 003 RW 008 Desa Badak")
+        w_ibu_alamat2 = st.text_input("Alamat Ibu Baris 2 (Perempuan)", value="Kecamatan Belik Kabupaten Pemalang")
 
 # ----------------------------------------------------
 # TAB 4: DATA WALI NIKAH
@@ -166,14 +178,15 @@ with tab4:
         hubungan_wali = st.selectbox("Hubungan Wali Nasab", ["AYAH KANDUNG", "KAKAK KANDUNG", "ADIK KANDUNG", "PAFE (PAMAN AYAH)", "LAINNYA"])
         
         if hubungan_wali == "AYAH KANDUNG":
-            st.info("💡 Karena Wali Nasab adalah AYAH KANDUNG, data wali otomatis disesuaikan dari data Ayah Catin Perempuan.")
+            st.info("💡 Data Wali otomatis menyamakan data Ayah Catin Perempuan.")
             wali_nama = w_ayah_nama
             wali_bin = w_ayah_bin
             wali_nik = w_ayah_nik
             wali_tmpt_lahir = w_ayah_tmpt_lahir
             wali_tgl_lahir = w_ayah_tgl_lahir
             wali_pekerjaan = w_ayah_pekerjaan
-            wali_alamat = w_ayah_alamat
+            wali_alamat1 = w_ayah_alamat1
+            wali_alamat2 = w_ayah_alamat2
         else:
             col_wali1, col_wali2 = st.columns(2)
             with col_wali1:
@@ -184,7 +197,8 @@ with tab4:
             with col_wali2:
                 wali_tgl_lahir = st.date_input("Tanggal Lahir Wali", value=datetime.date(1980, 1, 1))
                 wali_pekerjaan = st.text_input("Pekerjaan Wali", value="WIRASWASTA")
-                wali_alamat = st.text_area("Alamat Wali Nikah", value="")
+                wali_alamat1 = st.text_input("Alamat Wali Baris 1", value="")
+                wali_alamat2 = st.text_input("Alamat Wali Baris 2", value="")
     else:
         sebab_wali_hakim = st.selectbox("Sebab Menggunakan Wali Hakim", ["SEPI WALI", "WALI ADHAL", "WALI GAIB/TIDAK DIKETAHUI"])
         st.warning(f"Menggunakan Wali Hakim dengan alasan: **{sebab_wali_hakim}**")
@@ -194,7 +208,8 @@ with tab4:
         wali_tmpt_lahir = "-"
         wali_tgl_lahir = datetime.date.today()
         wali_pekerjaan = "-"
-        wali_alamat = "-"
+        wali_alamat1 = "-"
+        wali_alamat2 = "-"
 
 # ----------------------------------------------------
 # TAB 5: RINGKASAN & CETAK DATA (RDS)
@@ -215,7 +230,7 @@ B. CALON SUAMI
 • Nama Lengkap  : {catin_p_nama}
 • NIK / Ed.     : {catin_p_nik} / {catin_p_pendidikan}
 • Tempat, Tgl L : {catin_p_tmpt_lahir}, {catin_p_tgl_lahir.strftime('%d-%m-%Y')}
-• Pekerjaan     : {catin_p_pekerjaan}
+• Pekerjaan     : {catin_p_pekerjaan_val}
 • Status        : {catin_p_status}
 • Alamat        : {catin_p_alamat1} {catin_p_alamat2}
 - Ayah Kandung  : {p_ayah_nama} Bin {p_ayah_bin} (NIK: {p_ayah_nik})
@@ -225,7 +240,7 @@ C. CALON ISTRI
 • Nama Lengkap  : {catin_w_nama}
 • NIK / Ed.     : {catin_w_nik} / {catin_w_pendidikan}
 • Tempat, Tgl L : {catin_w_tmpt_lahir}, {catin_w_tgl_lahir.strftime('%d-%m-%Y')}
-• Pekerjaan     : {catin_w_pekerjaan}
+• Pekerjaan     : {catin_w_pekerjaan_val}
 • Status        : {catin_w_status}
 • Alamat        : {catin_w_alamat1} {catin_w_alamat2}
 - Ayah Kandung  : {w_ayah_nama} Bin {w_ayah_bin} (NIK: {w_ayah_nik})
@@ -241,22 +256,29 @@ D. WALI NIKAH
     st.download_button("📥 Unduh Teks Ringkasan Data (RDS)", data=rds_text, file_name=f"RDS_{catin_p_nama}.txt")
 
 # ----------------------------------------------------
-# TAB 6: UNDUH FILE EXCEL ASLI
+# TAB 6: UNDUH FILE EXCEL DENGAN HASIL ISIAN
 # ----------------------------------------------------
 with tab6:
-    st.subheader("📥 Unduh Berkas Excel Asli (.xlsx)")
-    st.markdown("Klik tombol di bawah ini untuk mengunduh file Excel lengkap dengan seluruh sheet, rumus, dan format asli bawaan Anda.")
+    st.subheader("📥 Unduh File Excel Berisi Data Hasil Isian")
+    st.markdown("Klik tombol di bawah ini untuk mengunduh berkas Excel yang **sudah otomatis terisi** sesuai dengan data yang Anda masukkan pada formulir di atas. Seluruh rumus dan format asli di sheet lainnya tetap terjaga 100%.")
     
     excel_filename = "N_AOFA ARDIAN AZIZ RT 02_01.xlsx"
     
     if os.path.exists(excel_filename):
-        with open(excel_filename, "rb") as f:
-            excel_bytes = f.read()
-        st.download_button(
-            label="📊 Download File Excel Asli",
-            data=excel_bytes,
-            file_name=excel_filename,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-    else:
-        st.error(f"⚠️ File Excel asli `{excel_filename}` belum diunggah ke repositori GitHub. Pastikan file Excel tersebut sudah ikut di-upload ke dalam folder utama GitHub Anda agar bisa diunduh melalui tombol ini.")
+        # Function to generate updated excel file on-the-fly
+        def generate_filled_excel():
+            wb = openpyxl.load_workbook(excel_filename, data_only=False)
+            ws = wb["ISIAN DATA"]
+            
+            # Write Form Data to Sheet 'ISIAN DATA'
+            ws["C3"] = nama_desa
+            ws["C4"] = status_kades
+            ws["C5"] = nama_kades
+            ws["C6"] = petugas_pengantar
+            ws["C7"] = no_register
+            ws["C8"] = datetime.datetime.combine(tgl_surat, datetime.time.min)
+            ws["C9"] = datetime.datetime.combine(tgl_pelaksanaan, datetime.time.min)
+            ws["C10"] = waktu_akad
+            ws["D10"] = alasan_waktu
+            ws["E11"] = lokasi_pilihan
+            if lokasi_pilihan == "LUAR K
